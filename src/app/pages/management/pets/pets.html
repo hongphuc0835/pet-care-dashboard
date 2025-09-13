@@ -1,1 +1,120 @@
-<p>pets works!</p>
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedItems()" [disabled]="!selectedItems || !selectedItems.length" />
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="items()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [globalFilterFields]="['name', 'species', 'age', 'gender', 'breed']"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedItems"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Users</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th style="min-width: 12rem"></th>
+            <th pSortableColumn="ownerId" style="min-width: 16rem">Owner</th>
+            <th pSortableColumn="name" style="min-width: 16rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="gender" style="min-width: 12rem">Gender</th>
+            <th pSortableColumn="species" style="min-width: 12rem">Species</th>
+            <th pSortableColumn="age" style="min-width: 12rem">Age</th>
+            <th pSortableColumn="breed" style="min-width: 12rem">Breed</th>
+
+            <th style="min-width: 12rem; text-align: center">Action</th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-item>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="item" />
+            </td>
+            <td style="min-width: 12rem"><img [src]=" item.photoUrl" class="block mx-auto rounded object-cover" style="width: 90px; height: 90px" *ngIf="item.photoUrl" /></td>
+            <td style="min-width: 16rem">{{ getOwnerName(item.ownerId) }}</td>
+            <td style="min-width: 16rem">{{ item.name }}</td>
+            <td style="min-width: 12rem">{{ item.gender }}</td>
+            <td style="min-width: 16rem">{{ item.species }}</td>
+            <td style="min-width: 16rem">{{ item.age }}</td>
+            <td style="min-width: 12rem">{{ item.breed }}</td>
+
+            <td style="min-width: 12rem; text-align: center">
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="handleEdit(item)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteItem(item)" />
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="dialog" [style]="{ width: '600px' }" [header]="isAddMode ? 'Add Pet' : 'Edit Pet'" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="owner" class="block font-bold mb-3">Owner</label>
+                <p-select [options]="users" optionLabel="name" optionValue="id" id="owner" [(ngModel)]="item.ownerId" fluid></p-select>
+                <small class="text-red-500" *ngIf="submitted && !item.ownerId">Owner is required.</small>
+            </div>
+            <div>
+                <label for="name" class="block font-bold mb-3">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="item.name" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.name">Name is required.</small>
+            </div>
+            <div>
+                <label for="gender" class="block font-bold mb-3">Gender</label>
+                <p-select [options]="genders" optionLabel="label" optionValue="value" id="gender" [(ngModel)]="item.gender" fluid></p-select>
+                <small class="text-red-500" *ngIf="submitted && !item.gender">Gender is required.</small>
+            </div>
+            <div>
+                <label for="species" class="block font-bold mb-3">Species</label>
+                <input type="text" pInputText id="species" [(ngModel)]="item.species" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.species">Species is required.</small>
+            </div>
+
+            <div>
+                <label for="age" class="block font-bold mb-3">Age</label>
+                <input type="text" pInputText id="age" [(ngModel)]="item.age" autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.age">Age is required.</small>
+            </div>
+
+            <div>
+                <label for="breed" class="block font-bold mb-3">Breed</label>
+                <input type="text" pInputText id="breed" [(ngModel)]="item.breed" autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.breed">Breed is required.</small>
+            </div>
+
+            <div>
+                <label for="avatar" class="block font-bold mb-3">Avatar URL</label>
+                <input type="text" pInputText id="avatar" [(ngModel)]="item.photoUrl" autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.photoUrl">Avatar URL is required.</small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+        <p-button label="Save" icon="pi pi-check" (click)="saveItem()" />
+    </ng-template>
+</p-dialog>

@@ -1,4 +1,4 @@
-import { AuthService } from './layout/service/auth-service';
+import { AuthService } from './service/auth-service';
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 

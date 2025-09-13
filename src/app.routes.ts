@@ -6,12 +6,32 @@ import { AuthGuard } from '@/auth-guard';
 import { LoginGuard } from '@/login-guard';
 
 export const appRoutes: Routes = [
+    // {
+    //     path: '',
+    //     component: AppLayout,
+    //     canActivate: [AuthGuard],
+    //     children: [
+    //         { path: '', component: Dashboard },
+    //         {
+    //             path: 'management',
+    //             loadChildren: () => import('./app/pages/management/management.routes')
+    //         }
+    //     ]
+    // },
+    // {
+    //     path: 'auth',
+    //     canActivate: [LoginGuard],
+    //     loadChildren: () => import('./app/pages/auth/auth.routes')
+    // },
+    // { path: 'notfound', component: Notfound },
+    // { path: '**', redirectTo: '/notfound' }
+
     {
         path: '',
         component: AppLayout,
         canActivate: [AuthGuard],
         children: [
-            { path: '', component: Dashboard },
+            { path: '', redirectTo: 'management/users', pathMatch: 'full' },
             {
                 path: 'management',
                 loadChildren: () => import('./app/pages/management/management.routes')

@@ -1,6 +1,6 @@
+import { TextareaModule } from 'primeng/textarea';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
-import { UsersService } from '@/service/users';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -14,20 +14,20 @@ import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { DiscoveryService } from '@/service/discovery';
 
 interface Column {
     field: string;
     header: string;
-    customExportHeader?: string;
 }
 
 @Component({
-    selector: 'app-users',
-    imports: [CommonModule, TableModule, FormsModule, ButtonModule, ToastModule, ToolbarModule, InputTextModule, SelectModule, DialogModule, ConfirmDialogModule, PasswordModule, IconField, InputIcon],
-    templateUrl: './users.html',
-    styleUrl: './users.scss'
+    selector: 'app-discoveries',
+    imports: [CommonModule, TableModule, FormsModule, ButtonModule, ToastModule, ToolbarModule, InputTextModule, SelectModule, DialogModule, ConfirmDialogModule, PasswordModule, IconField, InputIcon, TextareaModule],
+    templateUrl: './discoveries.html',
+    styleUrl: './discoveries.scss'
 })
-export class Users implements OnInit {
+export class Discoveries implements OnInit {
     dialog: boolean = false;
 
     items = signal<any[]>([]);
@@ -44,23 +44,8 @@ export class Users implements OnInit {
 
     isAddMode: boolean = true;
 
-    roles = [
-        {
-            name: 'OWNER',
-            code: 'OWNER'
-        },
-        {
-            name: 'SHELTER',
-            code: 'SHELTER'
-        },
-        {
-            name: 'VET',
-            code: 'VET'
-        }
-    ];
-
     constructor(
-        private userService: UsersService,
+        private discoveryService: DiscoveryService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -70,21 +55,22 @@ export class Users implements OnInit {
     }
 
     loadData() {
-        this.userService.getUsers().subscribe({
+        this.discoveryService.getDiscoveries().subscribe({
             next: (data) => {
                 this.items.set(data);
             },
             error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load discoveries' });
             }
         });
 
         this.cols = [
             { field: 'name', header: 'Name' },
-            { field: 'email', header: 'Email' },
-            { field: 'phone', header: 'Phone' },
+            { field: 'category', header: 'Category' },
+            { field: 'requirements', header: 'Requirements' },
             { field: 'address', header: 'Address' },
-            { field: 'role', header: 'Role' }
+            { field: 'location', header: 'Location' },
+            { field: 'description', header: 'Description' }
         ];
     }
 
@@ -107,7 +93,7 @@ export class Users implements OnInit {
 
     deleteSelectedItems() {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete the selected users?',
+            message: 'Are you sure you want to delete the selected services?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
@@ -116,7 +102,7 @@ export class Users implements OnInit {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
-                    detail: 'Users deleted successfully'
+                    detail: 'Services deleted successfully'
                 });
             }
         });
@@ -129,22 +115,22 @@ export class Users implements OnInit {
 
     deleteItem(item: any) {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete user <b>' + item.name + '</b>?',
+            message: 'Are you sure you want to delete service <b>' + item.name + '</b>?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.userService.deleteUser(item.id).subscribe({
+                this.discoveryService.deleteDiscovery(item.id).subscribe({
                     next: () => {
                         this.items.set(this.items().filter((val) => val.id !== item.id));
                         this.item = {};
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'User deleted successfully'
+                            detail: 'Service deleted successfully'
                         });
                     },
                     error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user' });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete service' });
                     }
                 });
             }
@@ -165,38 +151,38 @@ export class Users implements OnInit {
 
     saveItem() {
         this.submitted = true;
-        if (!this.item.name || !this.item.email || !this.item.phone || !this.item.address || !this.item.role || (this.isAddMode && !this.item.password)) {
+        if (!this.item.name || !this.item.category || !this.item.requirements || !this.item.location) {
             return;
         }
         let _items = this.items();
         if (this.items.name?.trim()) {
             if (this.item.id) {
                 _items[this.findIndexById(this.item.id)] = this.item;
-                this.userService.updateUser(this.item.id, this.item).subscribe({
+                this.discoveryService.updateDiscovery(this.item.id, this.item).subscribe({
                     next: (data) => {
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'User updated successfully'
+                            detail: 'Service updated successfully'
                         });
                     },
                     error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update service' });
                     }
                 });
                 this.items.set([..._items]);
             } else {
-                this.userService.createUser(this.item).subscribe({
+                this.discoveryService.createDiscovery(this.item).subscribe({
                     next: (data) => {
                         this.item.id = data.id;
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'User created successfully'
+                            detail: 'Service created successfully'
                         });
                     },
                     error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create user' });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create service' });
                     }
                 });
 

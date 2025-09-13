@@ -11,7 +11,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['name', 'email', 'phone', 'address', 'role']"
+    [globalFilterFields]="['name', 'category', 'requirements', 'address', 'location', 'description']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -38,14 +38,14 @@
                 Name
                 <p-sortIcon field="name" />
             </th>
-            <th pSortableColumn="email" style="min-width: 16rem">
-                Email
-                <p-sortIcon field="email" />
+            <th pSortableColumn="category" style="min-width: 16rem">
+                Category
+                <p-sortIcon field="category" />
             </th>
-            <th pSortableColumn="phone" style="min-width: 16rem">Phone</th>
-            <th pSortableColumn="address" style="min-width: 20rem">Address</th>
-            <th pSortableColumn="role" style="min-width: 12rem">Role</th>
-
+            <th pSortableColumn="requirements" style="min-width: 16rem">Requirements</th>
+            <th pSortableColumn="address" style="min-width: 16rem">Address</th>
+            <th pSortableColumn="location" style="min-width: 16rem">Location</th>
+            <th pSortableColumn="description" style="min-width: 20rem">Description</th>
             <th style="min-width: 12rem; text-align: center">Action</th>
         </tr>
     </ng-template>
@@ -56,10 +56,11 @@
             </td>
             <td style="min-width: 16rem">{{ item.name }}</td>
 
-            <td style="min-width: 16rem">{{ item.email }}</td>
-            <td style="min-width: 16rem">{{ item.phone }}</td>
-            <td style="min-width: 20rem">{{ item.address }}</td>
-            <td style="min-width: 12rem">{{ item.role }}</td>
+            <td style="min-width: 16rem">{{ item.category }}</td>
+            <td style="min-width: 16rem">{{ item.requirements }}</td>
+            <td style="min-width: 16rem">{{ item.address }}</td>
+            <td style="min-width: 16rem">{{ item.location }}</td>
+            <td style="min-width: 20rem">{{ item.description }}</td>
             <td style="min-width: 12rem; text-align: center">
                 <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="handleEdit(item)" />
                 <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteItem(item)" />
@@ -72,38 +73,37 @@
     <ng-template #content>
         <div class="flex flex-col gap-6">
             <div>
-                <label for="role" class="block font-bold mb-3">Role</label>
-                <p-select [options]="roles" optionLabel="name" optionValue="name" id="role" [(ngModel)]="item.role" placeholder="Select a Role" fluid></p-select>
-                <small class="text-red-500" *ngIf="submitted && !item.role">Role is required.</small>
-            </div>
-
-            <div>
                 <label for="name" class="block font-bold mb-3">Name</label>
                 <input type="text" pInputText id="name" [(ngModel)]="item.name" required autofocus fluid />
                 <small class="text-red-500" *ngIf="submitted && !item.name">Name is required.</small>
             </div>
-            <div>
-                <label for="email" class="block font-bold mb-3">Email</label>
-                <input type="text" pInputText id="email" [(ngModel)]="item.email" required autofocus fluid />
-                <small class="text-red-500" *ngIf="submitted && !item.email">Email is required.</small>
-            </div>
 
-            <div *ngIf="isAddMode">
-                <label for="password" class="block font-bold mb-3">Password</label>
-                <p-password id="password" [(ngModel)]="item.passwordHash" [toggleMask]="true" required autofocus fluid></p-password>
-                <small class="text-red-500" *ngIf="submitted && !item.passwordHash">Password is required.</small>
+            <div>
+                <label for="category" class="block font-bold mb-3">Category</label>
+                <input type="text" pInputText id="category" [(ngModel)]="item.category" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.category">Category is required.</small>
             </div>
 
             <div>
-                <label for="phone" class="block font-bold mb-3">Phone</label>
-                <input type="text" pInputText id="phone" [(ngModel)]="item.phone" autofocus fluid />
-                <small class="text-red-500" *ngIf="submitted && !item.phone">Phone is required.</small>
+                <label for="requirements" class="block font-bold mb-3">Requirements</label>
+                <input type="text" pInputText id="requirements" [(ngModel)]="item.requirements" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.requirements">Requirements are required.</small>
             </div>
 
             <div>
                 <label for="address" class="block font-bold mb-3">Address</label>
                 <input type="text" pInputText id="address" [(ngModel)]="item.address" autofocus fluid />
-                <small class="text-red-500" *ngIf="submitted && !item.address">Address is required.</small>
+            </div>
+
+            <div>
+                <label for="location" class="block font-bold mb-3">Location</label>
+                <input type="text" pInputText id="location" [(ngModel)]="item.location" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !item.location">Location is required.</small>
+            </div>
+
+            <div>
+                <label for="description" class="block font-bold mb-3">Description</label>
+                <textarea id="description" pTextarea [(ngModel)]="item.description" rows="3" cols="20" fluid></textarea>
             </div>
         </div>
     </ng-template>
