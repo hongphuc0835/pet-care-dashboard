@@ -126,7 +126,14 @@ export class Appointments implements OnInit {
     loadData() {
         this.appointmentService.getAppointments().subscribe({
             next: (data) => {
-                this.items.set(data);
+                this.items.set(
+                    data.map((rec: any) => ({
+                        ...rec,
+                        serviceName: this.getDiscoveryName(rec.discoveryId),
+                        ownerName: this.getOwnerName(rec.ownerId),
+                        petName: this.getPetName(rec.petId)
+                    }))
+                );
             },
             error: (err) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load appointments' });
@@ -134,9 +141,9 @@ export class Appointments implements OnInit {
         });
 
         this.cols = [
-            { field: 'discoveryId', header: 'Service' },
-            { field: 'ownerId', header: 'Owner' },
-            { field: 'petId', header: 'Pet' },
+            { field: 'serviceName', header: 'Service' },
+            { field: 'ownerName', header: 'Owner' },
+            { field: 'petName', header: 'Pet' },
             { field: 'apptTime', header: 'Date' },
             { field: 'status', header: 'Status' }
         ];

@@ -10,7 +10,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['diagnosis', 'treatment', 'notes']"
+    [globalFilterFields]="['diagnosis', 'treatment', 'notes', 'vetName', 'petName']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -35,8 +35,8 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox />
             </th>
-            <th pSortableColumn="vetId" style="min-width: 16rem">Veterinarian</th>
-            <th pSortableColumn="petId" style="min-width: 16rem">Pet</th>
+            <th pSortableColumn="vetName" style="min-width: 16rem">Veterinarian</th>
+            <th pSortableColumn="petName" style="min-width: 16rem">Pet</th>
             <th pSortableColumn="diagnosis" style="min-width: 16rem">Diagnosis</th>
             <th pSortableColumn="treatment" style="min-width: 16rem">Treatment</th>
             <th pSortableColumn="notes" style="min-width: 20rem">Notes</th>
@@ -49,8 +49,8 @@
             <td style="width: 3rem">
                 <p-tableCheckbox [value]="item" />
             </td>
-            <td style="min-width: 16rem">{{ getVetName(item.vetId) }}</td>
-            <td style="min-width: 16rem">{{ getPetName(item.petId) }}</td>
+            <td style="min-width: 16rem">{{ item.vetName }}</td>
+            <td style="min-width: 16rem">{{ item.petName }}</td>
             <td style="min-width: 16rem">{{ item.diagnosis }}</td>
             <td style="min-width: 16rem">{{ item.treatment }}</td>
             <td style="min-width: 20rem">{{ item.notes }}</td>

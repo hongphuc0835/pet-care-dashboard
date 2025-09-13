@@ -11,7 +11,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['name', 'species', 'age', 'gender', 'breed']"
+    [globalFilterFields]="['name', 'species', 'age', 'gender', 'breed', 'ownerName']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -35,7 +35,7 @@
                 <p-tableHeaderCheckbox />
             </th>
             <th style="min-width: 12rem"></th>
-            <th pSortableColumn="ownerId" style="min-width: 16rem">Owner</th>
+            <th pSortableColumn="ownerName" style="min-width: 16rem">Owner</th>
             <th pSortableColumn="name" style="min-width: 16rem">
                 Name
                 <p-sortIcon field="name" />
@@ -54,7 +54,7 @@
                 <p-tableCheckbox [value]="item" />
             </td>
             <td style="min-width: 12rem"><img [src]=" item.photoUrl" class="block mx-auto rounded object-cover" style="width: 90px; height: 90px" *ngIf="item.photoUrl" /></td>
-            <td style="min-width: 16rem">{{ getOwnerName(item.ownerId) }}</td>
+            <td style="min-width: 16rem">{{ item.ownerName }}</td>
             <td style="min-width: 16rem">{{ item.name }}</td>
             <td style="min-width: 12rem">{{ item.gender }}</td>
             <td style="min-width: 16rem">{{ item.species }}</td>

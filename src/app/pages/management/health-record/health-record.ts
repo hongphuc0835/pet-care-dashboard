@@ -95,7 +95,13 @@ export class HealthRecord implements OnInit {
     loadData() {
         this.healthRecordService.getRecords().subscribe({
             next: (data) => {
-                this.items.set(data);
+                this.items.set(
+                    data.map((rec: any) => ({
+                        ...rec,
+                        vetName: this.getVetName(rec.vetId),
+                        petName: this.getPetName(rec.petId)
+                    }))
+                );
             },
             error: (err) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load health records' });
@@ -103,8 +109,8 @@ export class HealthRecord implements OnInit {
         });
 
         this.cols = [
-            { field: 'vetId', header: 'Veterinarian' },
-            { field: 'petId', header: 'Pet' },
+            { field: 'vetName', header: 'Veterinarian' },
+            { field: 'petName', header: 'Pet' },
             { field: 'diagnosis', header: 'Diagnosis' },
             { field: 'treatment', header: 'Treatment' },
             { field: 'notes', header: 'Notes' },

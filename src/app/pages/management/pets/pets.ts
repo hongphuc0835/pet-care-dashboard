@@ -69,7 +69,12 @@ export class Pets implements OnInit {
     loadData() {
         this.petService.getPets().subscribe({
             next: (data) => {
-                this.items.set(data);
+                this.items.set(
+                    data.map((rec: any) => ({
+                        ...rec,
+                        ownerName: this.getOwnerName(rec.ownerId)
+                    }))
+                );
             },
             error: (err) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load pets' });
@@ -77,7 +82,7 @@ export class Pets implements OnInit {
         });
 
         this.cols = [
-            { field: 'ownerId', header: 'Owner' },
+            { field: 'ownerName', header: 'Owner' },
             { field: 'name', header: 'Name' },
             { field: 'species', header: 'Species' },
             { field: 'age', header: 'Age' },

@@ -11,7 +11,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['status']"
+    [globalFilterFields]="['status', 'serviceName', 'ownerName', 'petName']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -36,9 +36,9 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox />
             </th>
-            <th pSortableColumn="discoveryId" style="min-width: 16rem">Service</th>
-            <th pSortableColumn="ownerId" style="min-width: 16rem">Owner</th>
-            <th pSortableColumn="petId" style="min-width: 16rem">Pet</th>
+            <th pSortableColumn="serviceName" style="min-width: 16rem">Service</th>
+            <th pSortableColumn="ownerName" style="min-width: 16rem">Owner</th>
+            <th pSortableColumn="petName" style="min-width: 16rem">Pet</th>
             <th pSortableColumn="apptTime" style="min-width: 16rem">Date</th>
             <th pSortableColumn="status" style="min-width: 12rem">Status</th>
             <th style="min-width: 12rem; text-align: center">Action</th>
@@ -49,9 +49,9 @@
             <td style="width: 3rem">
                 <p-tableCheckbox [value]="item" />
             </td>
-            <td style="min-width: 16rem">{{ getDiscoveryName(item.discoveryId) }}</td>
-            <td style="min-width: 16rem">{{ getOwnerName(item.ownerId) }}</td>
-            <td style="min-width: 16rem">{{ getPetName(item.petId) }}</td>
+            <td style="min-width: 16rem">{{ item.serviceName }}</td>
+            <td style="min-width: 16rem">{{ item.ownerName }}</td>
+            <td style="min-width: 16rem">{{ item.petName }}</td>
             <td style="min-width: 20rem">{{ item.apptTime | date: 'yyyy-MM-dd' }}</td>
             <td style="min-width: 12rem">{{ item.status }}</td>
             <td style="min-width: 12rem; text-align: center">
