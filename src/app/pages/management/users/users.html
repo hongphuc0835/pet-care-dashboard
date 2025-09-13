@@ -19,6 +19,7 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [loading]="loading"
 >
     <ng-template #caption>
         <div class="flex items-center justify-between">

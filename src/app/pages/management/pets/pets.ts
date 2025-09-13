@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { PetsService } from '@/service/pets';
 import { UsersService } from '@/service/users';
+import { forkJoin } from 'rxjs';
 
 interface Column {
     field: string;
@@ -54,6 +55,8 @@ export class Pets implements OnInit {
         { label: 'FEMALE', value: 'FEMALE' }
     ];
 
+    loading: boolean = true;
+
     constructor(
         private petService: PetsService,
         private userService: UsersService,
@@ -62,34 +65,33 @@ export class Pets implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.loadData();
-        this.loadUsers();
-    }
+        forkJoin({
+            users: this.userService.getUsers(),
+            pets: this.petService.getPets()
+        }).subscribe({
+            next: ({ users, pets }) => {
+                this.usersMap = users.reduce((acc: Record<string, string>, u: any) => {
+                    acc[u.id] = u.name;
+                    return acc;
+                }, {});
 
-    loadData() {
-        this.petService.getPets().subscribe({
-            next: (data) => {
                 this.items.set(
-                    data.map((rec: any) => ({
+                    pets.map((rec: any) => ({
                         ...rec,
                         ownerName: this.getOwnerName(rec.ownerId)
                     }))
                 );
+                this.loading = false;
             },
-            error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load pets' });
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load pets'
+                });
+                this.loading = false;
             }
         });
-
-        this.cols = [
-            { field: 'ownerName', header: 'Owner' },
-            { field: 'name', header: 'Name' },
-            { field: 'species', header: 'Species' },
-            { field: 'age', header: 'Age' },
-            { field: 'gender', header: 'Gender' },
-            { field: 'breed', header: 'Breed' },
-            { field: 'avatar', header: 'Avatar' }
-        ];
     }
 
     getOwnerName(ownerId: string): string {

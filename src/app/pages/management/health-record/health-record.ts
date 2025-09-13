@@ -19,6 +19,7 @@ import { UsersService } from '@/service/users';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { FilterService } from 'primeng/api';
+import { forkJoin } from 'rxjs';
 
 interface Column {
     field: string;
@@ -61,6 +62,8 @@ export class HealthRecord implements OnInit {
     dateFilterFrom: Date | null = null;
     dateFilterTo: Date | null = null;
 
+    loading: boolean = true;
+
     constructor(
         private healthRecordService: HealthRecordService,
         private userService: UsersService,
@@ -71,9 +74,36 @@ export class HealthRecord implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.loadData();
-        this.loadUsers();
-        this.loadPets();
+        forkJoin({
+            users: this.userService.getUsers(),
+            pets: this.petsService.getPets(),
+            records: this.healthRecordService.getRecords()
+        }).subscribe({
+            next: ({ users, pets, records }) => {
+                this.usersMap = users.reduce((acc: Record<string, string>, u: any) => {
+                    acc[u.id] = u.name;
+                    return acc;
+                }, {});
+                this.petsMap = pets.reduce((acc: Record<string, string>, p: any) => {
+                    acc[p.id] = p.name;
+                    return acc;
+                }, {});
+
+                this.items.set(
+                    records.map((rec: any) => ({
+                        ...rec,
+                        vetName: this.getVetName(rec.vetId),
+                        petName: this.getPetName(rec.petId),
+                        apptTime: rec.apptTime ? new Date(rec.apptTime).toISOString().slice(0, 10) : ''
+                    }))
+                );
+                this.loading = false;
+            },
+            error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load health records' });
+                this.loading = false;
+            }
+        });
 
         this.filterService.register('customDateRange', (value: any, filter: any): boolean => {
             if (!filter) return true;
@@ -90,32 +120,6 @@ export class HealthRecord implements OnInit {
             }
             return true;
         });
-    }
-
-    loadData() {
-        this.healthRecordService.getRecords().subscribe({
-            next: (data) => {
-                this.items.set(
-                    data.map((rec: any) => ({
-                        ...rec,
-                        vetName: this.getVetName(rec.vetId),
-                        petName: this.getPetName(rec.petId)
-                    }))
-                );
-            },
-            error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load health records' });
-            }
-        });
-
-        this.cols = [
-            { field: 'vetName', header: 'Veterinarian' },
-            { field: 'petName', header: 'Pet' },
-            { field: 'diagnosis', header: 'Diagnosis' },
-            { field: 'treatment', header: 'Treatment' },
-            { field: 'notes', header: 'Notes' },
-            { field: 'createdAt', header: 'Date' }
-        ];
     }
 
     getVetName(vetId: string): string {

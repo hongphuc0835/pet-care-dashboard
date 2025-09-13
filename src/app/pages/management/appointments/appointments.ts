@@ -20,6 +20,7 @@ import { DiscoveryService } from '@/service/discovery';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { FilterService } from 'primeng/api';
+import { forkJoin } from 'rxjs';
 
 interface Column {
     field: string;
@@ -71,6 +72,8 @@ export class Appointments implements OnInit {
     dateFilterFrom: Date | null = null;
     dateFilterTo: Date | null = null;
 
+    loading: boolean = true;
+
     status = [
         {
             name: 'PENDING',
@@ -101,10 +104,45 @@ export class Appointments implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.loadData();
-        this.loadUsers();
-        this.loadPets();
-        this.loadDiscoveries();
+        forkJoin({
+            users: this.userService.getUsers(),
+            pets: this.petsService.getPets(),
+            discoveries: this.discoveryService.getDiscoveries(),
+            appointments: this.appointmentService.getAppointments()
+        }).subscribe({
+            next: ({ users, pets, discoveries, appointments }) => {
+                this.usersMap = users.reduce((acc: Record<string, string>, u: any) => {
+                    acc[u.id] = u.name;
+                    return acc;
+                }, {});
+                this.petsMap = pets.reduce((acc: Record<string, string>, p: any) => {
+                    acc[p.id] = p.name;
+                    return acc;
+                }, {});
+                this.discoveriesMap = discoveries.reduce((acc: Record<string, string>, d: any) => {
+                    acc[d.id] = d.name;
+                    return acc;
+                }, {});
+
+                this.items.set(
+                    appointments.map((rec: any) => ({
+                        ...rec,
+                        serviceName: this.getDiscoveryName(rec.discoveryId),
+                        ownerName: this.getOwnerName(rec.ownerId),
+                        petName: this.getPetName(rec.petId)
+                    }))
+                );
+                this.loading = false;
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to load appointments'
+                });
+                this.loading = false;
+            }
+        });
 
         this.filterService.register('customDateRange', (value: any, filter: any): boolean => {
             if (!filter) return true;
@@ -121,32 +159,6 @@ export class Appointments implements OnInit {
             }
             return true;
         });
-    }
-
-    loadData() {
-        this.appointmentService.getAppointments().subscribe({
-            next: (data) => {
-                this.items.set(
-                    data.map((rec: any) => ({
-                        ...rec,
-                        serviceName: this.getDiscoveryName(rec.discoveryId),
-                        ownerName: this.getOwnerName(rec.ownerId),
-                        petName: this.getPetName(rec.petId)
-                    }))
-                );
-            },
-            error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load appointments' });
-            }
-        });
-
-        this.cols = [
-            { field: 'serviceName', header: 'Service' },
-            { field: 'ownerName', header: 'Owner' },
-            { field: 'petName', header: 'Pet' },
-            { field: 'apptTime', header: 'Date' },
-            { field: 'status', header: 'Status' }
-        ];
     }
 
     getOwnerName(ownerId: string): string {
@@ -411,7 +423,7 @@ export class Appointments implements OnInit {
             const from = new Date(this.dateFilterFrom);
             const to = new Date(this.dateFilterTo);
 
-            table.filter({ from, to }, '', 'customDateRange');
+            table.filter({ from, to }, 'apptTime', 'customDateRange');
         } else if (this.dateFilterFrom) {
             const from = new Date(this.dateFilterFrom);
             table.filter({ from }, 'apptTime', 'customDateRange');

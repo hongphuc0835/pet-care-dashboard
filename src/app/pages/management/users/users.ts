@@ -44,6 +44,8 @@ export class Users implements OnInit {
 
     isAddMode: boolean = true;
 
+    loading: boolean = true;
+
     roles = [
         {
             name: 'OWNER',
@@ -73,9 +75,11 @@ export class Users implements OnInit {
         this.userService.getUsers().subscribe({
             next: (data) => {
                 this.items.set(data);
+                this.loading = false;
             },
             error: (err) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
+                this.loading = false;
             }
         });
 

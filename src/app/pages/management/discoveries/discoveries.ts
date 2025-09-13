@@ -44,6 +44,8 @@ export class Discoveries implements OnInit {
 
     isAddMode: boolean = true;
 
+    loading: boolean = true;
+
     constructor(
         private discoveryService: DiscoveryService,
         private messageService: MessageService,
@@ -58,9 +60,11 @@ export class Discoveries implements OnInit {
         this.discoveryService.getDiscoveries().subscribe({
             next: (data) => {
                 this.items.set(data);
+                this.loading = false;
             },
             error: (err) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load discoveries' });
+                this.loading = false;
             }
         });
 
