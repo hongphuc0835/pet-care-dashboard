@@ -191,42 +191,40 @@ export class Pets implements OnInit {
             return;
         }
         let _items = this.items();
-        if (this.items.name?.trim()) {
-            if (this.item.id) {
-                _items[this.findIndexById(this.item.id)] = this.item;
-                this.petService.updatePet(this.item.id, this.item).subscribe({
-                    next: (data) => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Successful',
-                            detail: 'Pet updated successfully'
-                        });
-                    },
-                    error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
-                    }
-                });
-                this.items.set([..._items]);
-            } else {
-                this.petService.createPet(this.item).subscribe({
-                    next: (data) => {
-                        this.item.id = data.id;
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Successful',
-                            detail: 'Pet created successfully'
-                        });
-                    },
-                    error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create pet' });
-                    }
-                });
+        if (this.item.id) {
+            _items[this.findIndexById(this.item.id)] = this.item;
+            this.petService.updatePet(this.item.id, this.item).subscribe({
+                next: (data) => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'Pet updated successfully'
+                    });
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update pet' });
+                }
+            });
+            this.items.set([..._items]);
+        } else {
+            this.petService.createPet(this.item).subscribe({
+                next: (data) => {
+                    this.item.id = data.id;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'Pet created successfully'
+                    });
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create pet' });
+                }
+            });
 
-                this.items.set([..._items, this.item]);
-            }
-
-            this.dialog = false;
-            this.item = {};
+            this.items.set([..._items, this.item]);
         }
+
+        this.dialog = false;
+        this.item = {};
     }
 }

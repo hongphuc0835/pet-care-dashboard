@@ -22,7 +22,7 @@
 >
     <ng-template #caption>
         <div class="flex items-center justify-between">
-            <h5 class="m-0">Manage Users</h5>
+            <h5 class="m-0">Manage Services</h5>
             <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
                 <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
@@ -69,7 +69,7 @@
     </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="dialog" [style]="{ width: '600px' }" [header]="isAddMode ? 'Add User' : 'Edit User'" [modal]="true">
+<p-dialog [(visible)]="dialog" [style]="{ width: '600px' }" [header]="isAddMode ? 'Add Service' : 'Edit Service'" [modal]="true">
     <ng-template #content>
         <div class="flex flex-col gap-6">
             <div>

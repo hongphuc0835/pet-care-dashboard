@@ -1,6 +1,5 @@
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
-import { UsersService } from '@/service/users';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -14,9 +13,9 @@ import { SelectModule } from 'primeng/select';
 import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { AppointmentsService } from '@/service/appointments';
+import { HealthRecordService } from '@/service/health-record';
 import { PetsService } from '@/service/pets';
-import { DiscoveryService } from '@/service/discovery';
+import { UsersService } from '@/service/users';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
 import { FilterService } from 'primeng/api';
@@ -26,14 +25,13 @@ interface Column {
     header: string;
     customExportHeader?: string;
 }
-
 @Component({
-    selector: 'app-appointments',
+    selector: 'app-health-record',
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, ToastModule, ToolbarModule, InputTextModule, SelectModule, DialogModule, ConfirmDialogModule, PasswordModule, IconField, InputIcon, DatePickerModule, TextareaModule],
-    templateUrl: './appointments.html',
-    styleUrl: './appointments.scss'
+    templateUrl: './health-record.html',
+    styleUrl: './health-record.scss'
 })
-export class Appointments implements OnInit {
+export class HealthRecord implements OnInit {
     currentDate: Date = new Date();
 
     dialog: boolean = false;
@@ -52,51 +50,23 @@ export class Appointments implements OnInit {
 
     isAddMode: boolean = true;
 
-    isAddRecordMode: boolean = false;
-
     usersMap: Record<any, any> = {};
 
     petsMap: Record<any, any> = {};
-
-    discoveriesMap: Record<any, any> = {};
 
     users: any[] = [];
 
     pets: any[] = [];
 
-    allPets: any[] = [];
-
-    discoveries: any[] = [];
-
     dateFilterFrom: Date | null = null;
     dateFilterTo: Date | null = null;
 
-    status = [
-        {
-            name: 'PENDING',
-            code: 'PENDING'
-        },
-        {
-            name: 'CANCELLED',
-            code: 'CANCELLED'
-        },
-        {
-            name: 'CONFIRMED',
-            code: 'CONFIRMED'
-        },
-        {
-            name: 'DONE',
-            code: 'DONE'
-        }
-    ];
-
     constructor(
+        private healthRecordService: HealthRecordService,
         private userService: UsersService,
         private petsService: PetsService,
-        private appointmentService: AppointmentsService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private discoveryService: DiscoveryService,
         private filterService: FilterService
     ) {}
 
@@ -104,7 +74,6 @@ export class Appointments implements OnInit {
         this.loadData();
         this.loadUsers();
         this.loadPets();
-        this.loadDiscoveries();
 
         this.filterService.register('customDateRange', (value: any, filter: any): boolean => {
             if (!filter) return true;
@@ -124,55 +93,35 @@ export class Appointments implements OnInit {
     }
 
     loadData() {
-        this.appointmentService.getAppointments().subscribe({
+        this.healthRecordService.getRecords().subscribe({
             next: (data) => {
                 this.items.set(data);
             },
             error: (err) => {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load appointments' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load health records' });
             }
         });
 
         this.cols = [
-            { field: 'discoveryId', header: 'Service' },
-            { field: 'ownerId', header: 'Owner' },
+            { field: 'vetId', header: 'Veterinarian' },
             { field: 'petId', header: 'Pet' },
-            { field: 'apptTime', header: 'Date' },
-            { field: 'status', header: 'Status' }
+            { field: 'diagnosis', header: 'Diagnosis' },
+            { field: 'treatment', header: 'Treatment' },
+            { field: 'notes', header: 'Notes' },
+            { field: 'createdAt', header: 'Date' }
         ];
     }
 
-    getOwnerName(ownerId: string): string {
-        return this.usersMap[ownerId] ?? ownerId;
+    getVetName(vetId: string): string {
+        return this.usersMap[vetId] ?? vetId;
     }
 
     getPetName(petId: string): string {
         return this.petsMap[petId] ?? petId;
     }
 
-    getDiscoveryName(discoveryId: string): string {
-        return this.discoveriesMap[discoveryId] ?? discoveryId;
-    }
-
-    onOwnerChange(ownerId: string) {
-        this.item.petId = null;
-        if (!ownerId) {
-            this.pets = [];
-            return;
-        }
-
-        this.petsService.getPetById(ownerId).subscribe({
-            next: (data) => {
-                this.pets = data;
-            },
-            error: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load pets for owner'
-                });
-            }
-        });
+    onGlobalFilter(table: Table, event: Event) {
+        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
     loadUsers() {
@@ -197,7 +146,7 @@ export class Appointments implements OnInit {
     loadPets() {
         this.petsService.getPets().subscribe({
             next: (data) => {
-                this.allPets = data;
+                this.pets = data;
                 this.petsMap = data.reduce((acc: Record<string, string>, pet: any) => {
                     acc[pet.id] = pet.name;
                     return acc;
@@ -213,29 +162,6 @@ export class Appointments implements OnInit {
         });
     }
 
-    loadDiscoveries() {
-        this.discoveryService.getDiscoveries().subscribe({
-            next: (data) => {
-                this.discoveries = data;
-                this.discoveriesMap = data.reduce((acc: Record<string, string>, discovery: any) => {
-                    acc[discovery.id] = discovery.name;
-                    return acc;
-                }, {});
-            },
-            error: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load discoveries'
-                });
-            }
-        });
-    }
-
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-
     openNew() {
         this.item = {};
         this.submitted = false;
@@ -243,37 +169,15 @@ export class Appointments implements OnInit {
         this.isAddMode = true;
     }
 
-    openAdd(item: any) {
-        this.item = { ...item, diagnosis: '', treatment: '', notes: '', createdAt: new Date(), vetId: Number(localStorage.getItem('id')) };
-        this.submitted = false;
-        this.dialog = true;
-        this.isAddRecordMode = true;
-    }
-
     handleEdit(item: any) {
         this.item = { ...item };
-        if (this.item.apptTime && typeof this.item.apptTime === 'string') {
-            this.item.apptTime = new Date(this.item.apptTime);
-        }
-        this.petsService.getPetById(this.item.ownerId).subscribe({
-            next: (data) => {
-                this.pets = data;
-            },
-            error: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load pets for owner'
-                });
-            }
-        });
         this.dialog = true;
         this.isAddMode = false;
     }
 
     deleteSelectedItems() {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete the selected appointments?',
+            message: 'Are you sure you want to delete the selected health records?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
@@ -282,7 +186,7 @@ export class Appointments implements OnInit {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
-                    detail: 'Appointments deleted successfully'
+                    detail: 'Health records deleted successfully'
                 });
             }
         });
@@ -295,22 +199,22 @@ export class Appointments implements OnInit {
 
     deleteItem(item: any) {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete appointment <b>' + item.name + '</b>?',
+            message: 'Are you sure you want to delete health record for pet <b>' + this.getPetName(item.petId) + '</b>?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.appointmentService.deleteAppointment(item.id).subscribe({
+                this.healthRecordService.deleteRecord(item.id).subscribe({
                     next: () => {
                         this.items.set(this.items().filter((val) => val.id !== item.id));
                         this.item = {};
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
-                            detail: 'Appointment deleted successfully'
+                            detail: 'Health record for pet <b>' + this.getPetName(item.petId) + '</b> deleted successfully'
                         });
                     },
                     error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete appointment' });
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete health record' });
                     }
                 });
             }
@@ -331,68 +235,25 @@ export class Appointments implements OnInit {
 
     saveItem() {
         this.submitted = true;
-        if (this.isAddRecordMode) {
-            if (!this.item.diagnosis || !this.item.createdAt || !this.item.treatment) {
-                return;
-            }
-        } else {
-            if (!this.item.discoveryId || !this.item.ownerId || !this.item.petId || !this.item.status || !this.item.apptTime) {
-                return;
-            }
-        }
-        let _items = this.items();
-
-        if (this.isAddRecordMode) {
-            const { id, ...payload } = this.item;
-            this.appointmentService.addHealthRecord({ ...payload, apptId: id }).subscribe({
-                next: (data) => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Successful',
-                        detail: 'Health record added successfully'
-                    });
-                },
-                error: (err) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add health record' });
-                }
-            });
-            this.dialog = false;
-            this.item = {};
-            this.isAddRecordMode = false;
+        if (!this.item.createdAt || !this.item.diagnosis || !this.item.treatment) {
             return;
         }
-
+        let _items = this.items();
         if (this.item.id) {
             _items[this.findIndexById(this.item.id)] = this.item;
-            this.appointmentService.updateAppointment(this.item.id, this.item).subscribe({
+            this.healthRecordService.updateRecord(this.item.id, this.item).subscribe({
                 next: (data) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
-                        detail: 'Appointment updated successfully'
+                        detail: 'Health record for pet <b>' + this.getPetName(this.item.petId) + '</b> updated successfully'
                     });
                 },
                 error: (err) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update appointment' });
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update health record' });
                 }
             });
             this.items.set([..._items]);
-        } else {
-            this.appointmentService.createAppointment(this.item).subscribe({
-                next: (data) => {
-                    this.item.id = data.id;
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Successful',
-                        detail: 'Appointment created successfully'
-                    });
-                },
-                error: (err) => {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create appointment' });
-                }
-            });
-
-            this.items.set([..._items, this.item]);
         }
 
         this.dialog = false;
@@ -404,13 +265,13 @@ export class Appointments implements OnInit {
             const from = new Date(this.dateFilterFrom);
             const to = new Date(this.dateFilterTo);
 
-            table.filter({ from, to }, '', 'customDateRange');
+            table.filter({ from, to }, 'createdAt', 'customDateRange');
         } else if (this.dateFilterFrom) {
             const from = new Date(this.dateFilterFrom);
-            table.filter({ from }, 'apptTime', 'customDateRange');
+            table.filter({ from }, 'createdAt', 'customDateRange');
         } else if (this.dateFilterTo) {
             const to = new Date(this.dateFilterTo);
-            table.filter({ to }, 'apptTime', 'customDateRange');
+            table.filter({ to }, 'createdAt', 'customDateRange');
         } else {
             table.clear();
         }

@@ -169,42 +169,40 @@ export class Users implements OnInit {
             return;
         }
         let _items = this.items();
-        if (this.items.name?.trim()) {
-            if (this.item.id) {
-                _items[this.findIndexById(this.item.id)] = this.item;
-                this.userService.updateUser(this.item.id, this.item).subscribe({
-                    next: (data) => {
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Successful',
-                            detail: 'User updated successfully'
-                        });
-                    },
-                    error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
-                    }
-                });
-                this.items.set([..._items]);
-            } else {
-                this.userService.createUser(this.item).subscribe({
-                    next: (data) => {
-                        this.item.id = data.id;
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Successful',
-                            detail: 'User created successfully'
-                        });
-                    },
-                    error: (err) => {
-                        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create user' });
-                    }
-                });
+        if (this.item.id) {
+            _items[this.findIndexById(this.item.id)] = this.item;
+            this.userService.updateUser(this.item.id, this.item).subscribe({
+                next: (data) => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'User updated successfully'
+                    });
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update user' });
+                }
+            });
+            this.items.set([..._items]);
+        } else {
+            this.userService.createUser(this.item).subscribe({
+                next: (data) => {
+                    this.item.id = data.id;
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Successful',
+                        detail: 'User created successfully'
+                    });
+                },
+                error: (err) => {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create user' });
+                }
+            });
 
-                this.items.set([..._items, this.item]);
-            }
-
-            this.dialog = false;
-            this.item = {};
+            this.items.set([..._items, this.item]);
         }
+
+        this.dialog = false;
+        this.item = {};
     }
 }

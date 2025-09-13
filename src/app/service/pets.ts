@@ -14,6 +14,10 @@ export class PetsService {
         return this.http.get<any>(`${this.baseURL}/pets`);
     }
 
+    getPetById(id: string) {
+        return this.http.get<any>(`${this.baseURL}/pets/user/${id}`);
+    }
+
     createPet(data: any) {
         return this.http.post<any>(`${this.baseURL}/pets`, data);
     }

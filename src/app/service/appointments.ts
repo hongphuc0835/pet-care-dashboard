@@ -25,4 +25,8 @@ export class AppointmentsService {
     deleteAppointment(id: string) {
         return this.http.delete<any>(`${this.baseURL}/appointments/${id}`);
     }
+
+    addHealthRecord(data: any) {
+        return this.http.post<any>(`${this.baseURL}/health-records`, data);
+    }
 }

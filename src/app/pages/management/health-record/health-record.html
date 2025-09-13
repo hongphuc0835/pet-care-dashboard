@@ -1,6 +1,5 @@
 <p-toolbar styleClass="mb-6">
     <ng-template #start>
-        <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
         <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedItems()" [disabled]="!selectedItems || !selectedItems.length" />
     </ng-template>
 </p-toolbar>
@@ -11,7 +10,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['status']"
+    [globalFilterFields]="['diagnosis', 'treatment', 'notes']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -22,7 +21,7 @@
 >
     <ng-template #caption>
         <div class="flex items-center justify-between">
-            <h5 class="m-0">Manage Appointments</h5>
+            <h5 class="m-0">Manage Health Records</h5>
             <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
                 <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="mr-3" />
@@ -36,11 +35,12 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox />
             </th>
-            <th pSortableColumn="discoveryId" style="min-width: 16rem">Service</th>
-            <th pSortableColumn="ownerId" style="min-width: 16rem">Owner</th>
+            <th pSortableColumn="vetId" style="min-width: 16rem">Veterinarian</th>
             <th pSortableColumn="petId" style="min-width: 16rem">Pet</th>
-            <th pSortableColumn="apptTime" style="min-width: 16rem">Date</th>
-            <th pSortableColumn="status" style="min-width: 12rem">Status</th>
+            <th pSortableColumn="diagnosis" style="min-width: 16rem">Diagnosis</th>
+            <th pSortableColumn="treatment" style="min-width: 16rem">Treatment</th>
+            <th pSortableColumn="notes" style="min-width: 20rem">Notes</th>
+            <th pSortableColumn="createdAt" style="min-width: 16rem">Date</th>
             <th style="min-width: 12rem; text-align: center">Action</th>
         </tr>
     </ng-template>
@@ -49,55 +49,23 @@
             <td style="width: 3rem">
                 <p-tableCheckbox [value]="item" />
             </td>
-            <td style="min-width: 16rem">{{ getDiscoveryName(item.discoveryId) }}</td>
-            <td style="min-width: 16rem">{{ getOwnerName(item.ownerId) }}</td>
+            <td style="min-width: 16rem">{{ getVetName(item.vetId) }}</td>
             <td style="min-width: 16rem">{{ getPetName(item.petId) }}</td>
-            <td style="min-width: 20rem">{{ item.apptTime | date: 'yyyy-MM-dd' }}</td>
-            <td style="min-width: 12rem">{{ item.status }}</td>
+            <td style="min-width: 16rem">{{ item.diagnosis }}</td>
+            <td style="min-width: 16rem">{{ item.treatment }}</td>
+            <td style="min-width: 20rem">{{ item.notes }}</td>
+            <td style="min-width: 16rem">{{ item.createdAt | date: 'yyyy-MM-dd' }}</td>
             <td style="min-width: 12rem; text-align: center">
-                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="handleEdit(item)" *ngIf="item.status === 'PENDING' || item.status === 'CONFIRMED'" />
-                <p-button icon="pi pi-file-plus" class="mr-2" [rounded]="true" [outlined]="true" (click)="openAdd(item)" *ngIf="item.status === 'CONFIRMED'" />
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="handleEdit(item)" />
                 <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteItem(item)" />
             </td>
         </tr>
     </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="dialog" [style]="{ width: '600px' }" [header]="isAddRecordMode ? 'Add Health Record' : isAddMode ? 'Add Appointment' : 'Edit Appointment'" [modal]="true">
+<p-dialog [(visible)]="dialog" [style]="{ width: '600px' }" [header]="isAddMode ? 'Add Health Record' : 'Edit Health Record'" [modal]="true">
     <ng-template #content>
-        <div class="flex flex-col gap-6" *ngIf="!isAddRecordMode">
-            <div>
-                <label for="discovery" class="block font-bold mb-3">Service</label>
-                <p-select [options]="discoveries" optionLabel="name" optionValue="id" id="discovery" [(ngModel)]="item.discoveryId" placeholder="Select a Service" fluid appendTo="body"></p-select>
-                <small class="text-red-500" *ngIf="submitted && !item.discoveryId">Service is required.</small>
-            </div>
-
-            <div>
-                <label for="owner" class="block font-bold mb-3">Owner</label>
-                <p-select [options]="users" optionLabel="name" optionValue="id" id="owner" [(ngModel)]="item.ownerId" placeholder="Select an Owner" fluid (onChange)="onOwnerChange(item.ownerId)" appendTo="body"></p-select>
-                <small class="text-red-500" *ngIf="submitted && !item.ownerId">Owner is required.</small>
-            </div>
-
-            <div>
-                <label for="pet" class="block font-bold mb-3">Pet</label>
-                <p-select [options]="pets" optionLabel="name" optionValue="id" id="pet" [(ngModel)]="item.petId" placeholder="Select a Pet" fluid [disabled]="!item.ownerId" appendTo="body"></p-select>
-                <small class="text-red-500" *ngIf="submitted && !item.petId">Pet is required.</small>
-            </div>
-
-            <div>
-                <label for="apptTime" class="block font-bold mb-3">Date</label>
-                <p-date-picker id="apptTime" [(ngModel)]="item.apptTime" dateFormat="yy-mm-dd" [minDate]="currentDate" showIcon="true" [iconDisplay]="'input'" placeholder="Select Date" fluid></p-date-picker>
-                <small class="text-red-500" *ngIf="submitted && !item.apptTime">Date is required.</small>
-            </div>
-
-            <div>
-                <label for="status" class="block font-bold mb-3">Status</label>
-                <p-select [options]="status" optionLabel="name" optionValue="code" id="status" [(ngModel)]="item.status" placeholder="Select a Status" fluid appendTo="body"></p-select>
-                <small class="text-red-500" *ngIf="submitted && !item.status">Status is required.</small>
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-6" *ngIf="isAddRecordMode">
+        <div class="flex flex-col gap-6">
             <div>
                 <label for="diagnosis" class="block font-bold mb-3">Diagnosis</label>
                 <input type="text" pInputText id="diagnosis" [(ngModel)]="item.diagnosis" required autofocus fluid />

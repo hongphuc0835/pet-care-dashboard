@@ -30,6 +30,7 @@ export class AppMenu {
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['management/users'] },
                     { label: 'Pets', icon: 'pi pi-fw pi-database', routerLink: ['management/pets'] },
                     { label: 'Appointments', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['management/appointments'] },
+                    { label: 'Health Records', icon: 'pi pi-fw pi-book', routerLink: ['management/health-records'] },
                     { label: 'Services', icon: 'pi pi-fw pi-warehouse', routerLink: ['management/services'] }
                 ]
             }

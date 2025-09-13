@@ -22,7 +22,7 @@
 >
     <ng-template #caption>
         <div class="flex items-center justify-between">
-            <h5 class="m-0">Manage Users</h5>
+            <h5 class="m-0">Manage Pets</h5>
             <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
                 <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
@@ -74,7 +74,7 @@
         <div class="flex flex-col gap-6">
             <div>
                 <label for="owner" class="block font-bold mb-3">Owner</label>
-                <p-select [options]="users" optionLabel="name" optionValue="id" id="owner" [(ngModel)]="item.ownerId" fluid></p-select>
+                <p-select [options]="users" optionLabel="name" optionValue="id" id="owner" [(ngModel)]="item.ownerId" fluid appendTo="body"></p-select>
                 <small class="text-red-500" *ngIf="submitted && !item.ownerId">Owner is required.</small>
             </div>
             <div>
@@ -84,7 +84,7 @@
             </div>
             <div>
                 <label for="gender" class="block font-bold mb-3">Gender</label>
-                <p-select [options]="genders" optionLabel="label" optionValue="value" id="gender" [(ngModel)]="item.gender" fluid></p-select>
+                <p-select [options]="genders" optionLabel="label" optionValue="value" id="gender" [(ngModel)]="item.gender" fluid appendTo="body"></p-select>
                 <small class="text-red-500" *ngIf="submitted && !item.gender">Gender is required.</small>
             </div>
             <div>
