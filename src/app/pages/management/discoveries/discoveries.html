@@ -11,7 +11,7 @@
     [rows]="10"
     [columns]="cols"
     [paginator]="true"
-    [globalFilterFields]="['name', 'category', 'requirements', 'address', 'location', 'description']"
+    [globalFilterFields]="['name', 'category', 'requirements', 'location', 'description']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
@@ -44,7 +44,7 @@
                 <p-sortIcon field="category" />
             </th>
             <th pSortableColumn="requirements" style="min-width: 16rem">Requirements</th>
-            <th pSortableColumn="address" style="min-width: 16rem">Address</th>
+            <!-- <th pSortableColumn="address" style="min-width: 16rem">Address</th> -->
             <th pSortableColumn="location" style="min-width: 16rem">Location</th>
             <th pSortableColumn="description" style="min-width: 20rem">Description</th>
             <th style="min-width: 12rem; text-align: center">Action</th>
@@ -59,7 +59,7 @@
 
             <td style="min-width: 16rem">{{ item.category }}</td>
             <td style="min-width: 16rem">{{ item.requirements }}</td>
-            <td style="min-width: 16rem">{{ item.address }}</td>
+            <!-- <td style="min-width: 16rem">{{ item.address }}</td> -->
             <td style="min-width: 16rem">{{ item.location }}</td>
             <td style="min-width: 20rem">{{ item.description }}</td>
             <td style="min-width: 12rem; text-align: center">

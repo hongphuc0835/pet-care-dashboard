@@ -12,7 +12,7 @@
     [columns]="cols"
     [paginator]="true"
     [globalFilterFields]="['name', 'species', 'age', 'gender', 'breed', 'ownerName']"
-    [tableStyle]="{ 'min-width': '75rem' }"
+    [tableStyle]="{ 'min-width': '45rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
     dataKey="id"
@@ -35,18 +35,18 @@
             <th style="width: 3rem">
                 <p-tableHeaderCheckbox />
             </th>
-            <th style="min-width: 12rem"></th>
-            <th pSortableColumn="ownerName" style="min-width: 16rem">Owner</th>
-            <th pSortableColumn="name" style="min-width: 16rem">
+            <th style="min-width: 10rem"></th>
+            <th pSortableColumn="ownerName" style="min-width: 8rem">Owner</th>
+            <th pSortableColumn="name" style="min-width: 8rem">
                 Name
                 <p-sortIcon field="name" />
             </th>
-            <th pSortableColumn="gender" style="min-width: 12rem">Gender</th>
-            <th pSortableColumn="species" style="min-width: 12rem">Species</th>
-            <th pSortableColumn="age" style="min-width: 12rem">Age</th>
-            <th pSortableColumn="breed" style="min-width: 12rem">Breed</th>
+            <th pSortableColumn="gender" style="min-width: 10rem">Gender</th>
+            <th pSortableColumn="species" style="min-width: 10rem">Species</th>
+            <th pSortableColumn="age" style="min-width: 10rem">Age</th>
+            <th pSortableColumn="breed" style="min-width: 10rem">Breed</th>
 
-            <th style="min-width: 12rem; text-align: center">Action</th>
+            <th style="min-width: 10rem; text-align: center">Action</th>
         </tr>
     </ng-template>
     <ng-template #body let-item>
@@ -54,15 +54,15 @@
             <td style="width: 3rem">
                 <p-tableCheckbox [value]="item" />
             </td>
-            <td style="min-width: 12rem"><img [src]=" item.photoUrl" class="block mx-auto rounded object-cover" style="width: 90px; height: 90px" *ngIf="item.photoUrl" /></td>
-            <td style="min-width: 16rem">{{ item.ownerName }}</td>
-            <td style="min-width: 16rem">{{ item.name }}</td>
-            <td style="min-width: 12rem">{{ item.gender }}</td>
-            <td style="min-width: 16rem">{{ item.species }}</td>
-            <td style="min-width: 16rem">{{ item.age }}</td>
-            <td style="min-width: 12rem">{{ item.breed }}</td>
+            <td style="min-width: 10rem"><img [src]=" item.photoUrl" class="block mx-auto rounded object-cover" style="width: 90px; height: 90px" *ngIf="item.photoUrl" /></td>
+            <td style="min-width: 8rem">{{ item.ownerName }}</td>
+            <td style="min-width: 8rem">{{ item.name }}</td>
+            <td style="min-width: 10rem">{{ item.gender }}</td>
+            <td style="min-width: 8rem">{{ item.species }}</td>
+            <td style="min-width: 8rem">{{ item.age }}</td>
+            <td style="min-width: 10rem">{{ item.breed }}</td>
 
-            <td style="min-width: 12rem; text-align: center">
+            <td style="min-width: 10rem; text-align: center">
                 <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="handleEdit(item)" />
                 <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteItem(item)" />
             </td>
